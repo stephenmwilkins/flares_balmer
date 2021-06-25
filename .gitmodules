@@ -1,0 +1,3 @@
+[submodule "flares_balmer_paper"]
+	path = flares_balmer_paper
+	url = https://github.com/stephenmwilkins/flares_balmer_paper.git
