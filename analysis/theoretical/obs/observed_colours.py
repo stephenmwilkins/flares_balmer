@@ -45,7 +45,8 @@ for ax, (f1, f2), window in zip(axes, [('Webb.NIRCam.F200W','Webb.NIRCam.F277W')
         data = ascii.read(f'data/observed_{sfh_type}_fesc{fesc}_log10Z{log10Z}.dat')
         z = data['z']
 
-        C = -2.5*np.log10(data[f1]/data[f2])
+        # C = -2.5*np.log10(data[f1]/data[f2])
+        C = data[f2]/data[f1]
 
         ax.plot(z[z<window[0]], C[z<window[0]], c=c, lw=1, ls=ls, alpha=0.2)
         ax.plot(z[(z>window[0])&(z<window[1])], C[(z>window[0])&(z<window[1])], c=c, lw=1, ls=ls, label = rf'$\rm {labels[sfh_type]}$')
@@ -67,7 +68,8 @@ for ax, (f1, f2), window in zip(axes, [('Webb.NIRCam.F200W','Webb.NIRCam.F277W')
         data = ascii.read(f'data/observed_{sfh_type}_fesc{fesc}_log10Z{log10Z}_log10tauV{log10tau_V}.dat')
         z = data['z']
 
-        C = -2.5*np.log10(data[f1]/data[f2])
+        # C = -2.5*np.log10(data[f1]/data[f2])
+        C = data[f2]/data[f1]
 
         ax.plot(z[z<window[0]], C[z<window[0]], c=c, lw=1, ls=ls, alpha=0.2)
         ax.plot(z[(z>window[0])&(z<window[1])], C[(z>window[0])&(z<window[1])], c=c, lw=1, ls=ls, label = rf'$\rm \tau_V = {10**log10tau_V:.1f}$')
@@ -87,7 +89,8 @@ for ax, (f1, f2), window in zip(axes, [('Webb.NIRCam.F200W','Webb.NIRCam.F277W')
     data = ascii.read(f'data/observed_{sfh_type}_fesc{fesc}_log10Z{log10Z}.dat')
     z = data['z']
 
-    C = -2.5*np.log10(data[f1]/data[f2])
+    # C = -2.5*np.log10(data[f1]/data[f2])
+    C = data[f2]/data[f1]
 
     ax.plot(z[z<window[0]], C[z<window[0]], c=c, lw=1, ls=ls, alpha=0.2)
     ax.plot(z[(z>window[0])&(z<window[1])], C[(z>window[0])&(z<window[1])], c=c, lw=1, ls=ls, label = rf'$\rm f_{{esc}} = 1$')
@@ -99,10 +102,12 @@ for ax, (f1, f2), window in zip(axes, [('Webb.NIRCam.F200W','Webb.NIRCam.F277W')
     if ax == axes[0]:ax.legend(fontsize=7, labelspacing = 0.1)
 
     ax.set_ylim([-0.99, 1.49])
+    ax.set_ylim([0, 2.9])
     ax.set_xlim([5., 12])
 
     if ax == axes[-1]: ax.set_xlabel(r'$\rm z$')
-    ax.set_ylabel(rf'$\rm {f1.split(".")[-1]}-{f2.split(".")[-1]}$')
+    # ax.set_ylabel(rf'$\rm {f1.split(".")[-1]}-{f2.split(".")[-1]}$')
+    ax.set_ylabel(rf'$\rm f_{{ {f1.split(".")[-1]} }}/f_{{ {f2.split(".")[-1]} }}$')
 
 fig.savefig(f'figs/observed_colours.pdf')
 fig.clf()

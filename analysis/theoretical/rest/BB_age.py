@@ -50,13 +50,16 @@ for i, sfh_type in enumerate(['constant', 'instant', 'exp100']):
             x = np.log10(x) + np.log10(tau) + 6
 
 
-        C = -2.5*np.log10(data['FAKE.FAKE.BBa']/data['FAKE.FAKE.BBb'])
+        # C = -2.5*np.log10(data['FAKE.FAKE.BBa']/data['FAKE.FAKE.BBb'])
+        C = np.log10(data['FAKE.FAKE.BBb']/data['FAKE.FAKE.BBa'])
+
         ax.plot(x, C, c=c, lw=1, ls=ls, label = fr'$\rm \tau_{{V}}={tau_V}$')
 
 
     # add f_esc = 1.0
     data = ascii.read(f'data/{sfh_type}_fesc1.0_log10Z{log10Z}_tauV0.0.dat')
-    C = -2.5*np.log10(data['FAKE.FAKE.BBa']/data['FAKE.FAKE.BBb'])
+    # C = -2.5*np.log10(data['FAKE.FAKE.BBa']/data['FAKE.FAKE.BBb'])
+    C = np.log10(data['FAKE.FAKE.BBb']/data['FAKE.FAKE.BBa'])
     ax.plot(x, C, c='0.5', lw=1, ls=ls, label = r'$\rm f_{esc}=1$')
 
 
@@ -74,11 +77,11 @@ ax.legend(handles=handles, fontsize=7, labelspacing = 0.1)
 
 
 
-ax.set_ylim([-1., 2])
+ax.set_ylim([-0.5, 1])
 ax.set_xlim([6., 9.0])
 
 ax.set_xlabel(r'$\rm log_{10}(age/yr)$')
-ax.set_ylabel(r'$\rm -2.5\times\log_{10}(L_{4200}/L_{3500})$')
+ax.set_ylabel(r'$\rm \log_{10}(L_{4200}/L_{3500})$')
 
 fig.savefig(f'figs/BB_age.pdf')
 fig.clf()
