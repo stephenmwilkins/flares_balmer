@@ -21,9 +21,8 @@ q = 'beta'
 # ----------------------------------------------------------------------
 # --- define parameters and tag
 tag = fl.tags[-3]  # --- select tag -3 = z=7
-
-
-s_limit = {'log10Mstar_30': 8.5, 'log10FUV': 28.5}
+log10Mstar_limit = 8.5
+log10FUV_limit = 28.5
 
 # ----------------------------------------------------------------------
 # --- define quantities to read in [not those for the corner plot, that's done later]
@@ -47,35 +46,65 @@ quantities.append({'path': f'Galaxy/BPASS_2.2.1/Chabrier300/Lines/DustModelI/HI4
 
 
 properties = ['log10BB', 'log10HbetaEW','beta']
-x_ = ['log10FUV', 'log10Mstar_30']
+
 
 D = {}
 s = {}
 s['log10Mstar_30'] = {}
 s['log10FUV'] = {}
-for tag, z in zip(fl.tags, fl.zeds):
 
+
+for tag, z in zip(fl.tags, fl.zeds):
     # --- get quantities (and weights and deltas)
     D[z] = fa.get_datasets(fl, tag, quantities)
-
-    for x in x_:
-        s[x][z] = D[z][x]>s_limit[x]
-
-
-
-# --- get default limits and modify them to match the selection range
-
-cmap = {'log10FUV': cm.viridis, 'log10Mstar_30': cm.inferno}
+    s['log10Mstar_30'][z] = D[z]['log10Mstar_30']>log10Mstar_limit
+    s['log10FUV'][z] = D[z]['log10FUV']>log10FUV_limit
 
 
 
 
-for x, z in zip(x_, x_[::-1]): #the colour map is for the other parameter
+norm = {'log10Mstar_30': 9.,'log10FUV': 29.}
 
-    limits = fa.limits
-    limits[x][0] = s_limit[x]
 
-    fig = fa.linear_redshift_mcol(D, fl.zeds, x, properties, s[x], limits = limits, scatter_colour_quantity = z, scatter_cmap = cmap[x], add_linear_fit = True)
+for j,y in enumerate(properties):
 
-    fig.savefig(f'figs/combined_redshift_{x}.pdf')
-    fig.savefig(f'figs/combined_redshift_{x}.png')
+    print(r'\hline')
+    print(rf'\multicolumn{{9}}{{c}}{{$\rm {fa.labels[y]} $}} \\')
+    print(r'\hline')
+
+    for i,z in enumerate(fl.zeds):
+
+        fit_p = {}
+        rho = {}
+        N = {}
+
+
+        for x in ['log10Mstar_30','log10FUV']:
+
+            N[x] = len(D[z]['weight'][s[x][z]])
+
+            x_ = D[z][x][s[x][z]] - norm[x]
+            y_ = D[z][y][s[x][z]]
+            w_ = D[z]['weight'][s[x][z]]
+            s_ = (~np.isnan(x_))&(~np.isnan(y_))&(~np.isinf(y_))
+
+            fit_p[x] = np.polyfit(x_[s_], y_[s_], 1, w = w_[s_])
+
+            rho[x] = np.corrcoef(x_[s_], y_[s_])
+
+
+
+        # if i == 0:
+        #     print(rf" \multirow{{ {len(fl.zeds)} }}{{4em}}{{ {fa.labels[y]} }}& {z} & {fit_p['log10Mstar_30'][1]:.2f} & {fit_p['log10Mstar_30'][0]:.2f} & {fit_p['log10FUV'][1]:.2f} & {fit_p['log10FUV'][0]:.2f} \\")
+        # else:
+        #     print(rf" & {z} & {fit_p['log10Mstar_30'][1]:.2f} & {fit_p['log10Mstar_30'][0]:.2f} & {fit_p['log10FUV'][1]:.2f} & {fit_p['log10FUV'][0]:.2f} \\")
+
+        print(rf" {int(z)} & {N['log10Mstar_30']} & {fit_p['log10Mstar_30'][1]:.2f} & {fit_p['log10Mstar_30'][0]:.2f} & {rho['log10Mstar_30'][0][1]:.2f} & {N['log10FUV']} & {fit_p['log10FUV'][1]:.2f} & {fit_p['log10FUV'][0]:.2f} & {rho['log10FUV'][0][1]:.2f} \\")
+
+
+
+
+# \multirow{3}{4em}{Multiple row} & cell2 & cell3 \\
+# & cell5 & cell6 \\
+# & cell8 & cell9 \\
+# \hline
