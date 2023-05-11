@@ -105,6 +105,16 @@ flaxes[3].errorbar(x, y, xerr=xerr, yerr=yerr, fmt='o',
                    label=r'$\rm Looser+23$', c=colors[1], markersize=3, elinewidth=1)
 
 
+z = 10.1
+x = 8.1
+xerr = 0.3
+y = -0.11
+yerr = 0.036
+
+flaxes[0].errorbar(x, y, xerr=xerr, yerr=yerr, fmt='o',
+                   label=r'$\rm Hsiao+23$', c=colors[2], markersize=3, elinewidth=1)
+
+
 for ax in axes.flatten():
     ax.legend(fontsize=8)
 
