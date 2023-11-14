@@ -5,6 +5,7 @@ import cmasher as cmr
 
 import scipy.stats as stats
 
+from astropy.io import ascii
 
 import cmasher as cmr
 
@@ -21,7 +22,7 @@ import flares_utility.stats
 x_limits = [8.01, 11.49]
 # x_limits = [28.01, 30.49]
 
-filename = '/Users/stephenwilkins/Dropbox/Research/data/simulations/flares/flares_noparticlesed.hdf5'
+filename = '/Users/sw376/Dropbox/Research/data/simulations/flares/flares_noparticlesed_v4.hdf5'
 
 flares = analyse.analyse(filename, default_tags=False)
 
@@ -115,9 +116,38 @@ flaxes[0].errorbar(x, y, xerr=xerr, yerr=yerr, fmt='o',
                    label=r'$\rm Hsiao+23$', c=colors[2], markersize=3, elinewidth=1)
 
 
+
+# add vikaeus
+
+data = ascii.read("vikaeus.dat", delimiter=' ')
+
+
+for ax, z in zip(flaxes, zeds):
+    
+    s = (np.fabs(data['Z'].data-z)<0.5)&(data['LOG10MSTAR'].data>0.0)
+
+    x = data['LOG10MSTAR'].data[s]
+    y = np.log10(data['B'].data[s])
+    xerr = [-data['LOG10MSTAR_LOW_ERR'].data[s], data['LOG10MSTAR_UPP_ERR'].data[s]]
+    yerr = [y-np.log10(data['B'].data[s]-data['B_ERR'].data[s]), np.log10(data['B'].data[s]+data['B_ERR'].data[s])-y]
+
+
+    ax.errorbar(x, y, xerr=xerr, yerr=yerr, fmt='o', label=r'$\rm Vikaeus+23$', c=colors[3], markersize=3, elinewidth=1, zorder=5)
+
+
+# add axes legends without repeating elements
+labels = []
 for ax in axes.flatten():
-    ax.legend(fontsize=8)
+    h, l = ax.get_legend_handles_labels()
+    h__ = []
+    l__ = []
+    for h_, l_ in zip(h,l):
+        if l_ not in labels:
+            labels.append(l_)
+            h__.append(h_)
+            l__.append(l_)
+        ax.legend(h__,l__, fontsize=8)
 
 
 fig.savefig(f'figs/M.pdf')
-fig.savefig(f'figs/M.png')
+# fig.savefig(f'figs/M.png')

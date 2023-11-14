@@ -3,15 +3,9 @@ import numpy as np
 import matplotlib.cm as cm
 
 import scipy.stats as stats
-
-
 import cmasher as cmr
+from astropy.io import ascii
 
-import h5py
-
-import flare.plt as fplt
-import flare.photom as phot
-from flare.photom import M_to_lum
 import flares_utility.limits
 import flares_utility.plt
 import flares_utility.analyse as analyse
@@ -20,7 +14,7 @@ import flares_utility.stats
 # x_limits = [8.5, 11.5]
 x_limits = [28.01, 30.49]
 
-filename = '/Users/stephenwilkins/Dropbox/Research/data/simulations/flares/flares_noparticlesed.hdf5'
+filename = '/Users/sw376/Dropbox/Research/data/simulations/flares/flares_noparticlesed_v4.hdf5'
 
 flares = analyse.analyse(filename, default_tags=False)
 
@@ -81,6 +75,42 @@ fig, axes = flares_utility.plt.linear_redshift(
 # for ax in axes.flatten():
 #     ax.set_yscale('log')
 
+
+# Add observations
+
+colors = cmr.take_cmap_colors('cmr.infinity', 5, cmap_range=(0.15, 0.85))
+
+# add vikaeus
+
+data = ascii.read("vikaeus.dat", delimiter=' ')
+
+
+for ax, z in zip(axes.flatten(), zeds):
+    
+    s = (np.fabs(data['Z'].data-z)<0.5)
+
+    x = data['LOG10LFUV'].data[s]
+    y = np.log10(data['B'].data[s])
+    xerr = [data['LOG10LFUV_LOW_ERR'].data[s], data['LOG10LFUV_UPP_ERR'].data[s]]
+    yerr = [y-np.log10(data['B'].data[s]-data['B_ERR'].data[s]), np.log10(data['B'].data[s]+data['B_ERR'].data[s])-y]
+
+    ax.errorbar(x, y, xerr=xerr, yerr=yerr, fmt='o', label=r'$\rm Vikaeus+23$', c=colors[3], markersize=3, elinewidth=1, zorder=5)
+
+
+
+
+# add axes legends without repeating elements
+labels = []
+for ax in axes.flatten():
+    h, l = ax.get_legend_handles_labels()
+    h__ = []
+    l__ = []
+    for h_, l_ in zip(h,l):
+        if l_ not in labels:
+            labels.append(l_)
+            h__.append(h_)
+            l__.append(l_)
+        ax.legend(h__,l__, fontsize=8)
 
 fig.savefig(f'figs/L.pdf')
 fig.savefig(f'figs/L.png')
